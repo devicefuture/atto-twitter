@@ -1,0 +1,24 @@
+{
+    "name": "atto-twitter",
+    "version": "0.1.0",
+    "description": "atto's Twitter bot that executes programs that are Tweeted to it.",
+    "main": "main.js",
+    "scripts": {
+        "start": "node main.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/James-Livesey/atto-twitter.git"
+    },
+    "author": "@James-Livesey",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/James-Livesey/atto-twitter/issues"
+    },
+    "homepage": "https://twitter.com/codeurdreams",
+    "dependencies": {
+        "express": "^4.17.1",
+        "open": "^8.2.1",
+        "twit": "^2.2.11"
+    }
+}
