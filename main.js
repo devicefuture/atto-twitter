@@ -44,7 +44,7 @@ class Request {
 
             T.post("media/metadata/create", {
                 media_id: uploadData.media_id_string,
-                alt_text: {text: requestData.altText.substring(requestData.altText.length - TWITTER_MAX_ALT_TEXT_LENGTH)}
+                alt_text: {text: requestData.altText.substring(Math.max(requestData.altText.length - TWITTER_MAX_ALT_TEXT_LENGTH, 0))}
             }, function(error, altData, response) {
                 if (error) {
                     console.error(error);
