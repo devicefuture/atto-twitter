@@ -17,6 +17,8 @@
     },
     "homepage": "https://twitter.com/codeurdreams",
     "dependencies": {
+        "cors": "^2.8.5",
+        "dotenv": "^10.0.0",
         "express": "^4.17.1",
         "open": "^8.2.1",
         "twit": "^2.2.11"

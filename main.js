@@ -1,13 +1,25 @@
 const express = require("express");
+const cors = require("cors");
 const open = require("open");
 const Twit = require("twit");
 
-const URL_BASE = "https://jamesl.me/atto";
-const TWITTER_USERNAME = "codeurdreams";
+require("dotenv").config();
+
+const URL_BASE = process.env.ATTO_INSTANCE_URL;
+const TWITTER_USERNAME = process.env.TWITTER_USERNAME;
 const TWITTER_MAX_ALT_TEXT_LENGTH = 420;
 
 var app = express();
-var T = new Twit({}); // TODO: Add config data from environment variables
+
+var T = new Twit({
+    consumer_key: process.env.TWITTER_CONSUMER_KEY,
+    consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
+    access_token: process.env.TWITTER_ACCESS_TOKEN,
+    access_secret: process.env.TWITTER_TOKEN_SECRET,
+    timeout_ms: 60 * 1000,
+    strictSSL: true
+});
+
 var stream = T.stream("user");
 
 var requestQueue = [];
@@ -27,7 +39,7 @@ class Request {
     runCode() {
         this.running = true;
 
-        var url = `${URL_BASE}?code=${encodeURIComponent(this.code)}`;
+        var url = `${URL_BASE}?code=${encodeURIComponent(this.code)}&bot=${this.originStatusId}`;
 
         open(url);
 
@@ -75,18 +87,20 @@ function tweetRequestEvent(tweet) {
     requestQueue.push(new Request(tweet.text.replace("@" + TWITTER_USERNAME + " ", ""), tweet.id_str));
 }
 
-app.post("/fulfil/:id", express.json(), function(req, res) {
+app.use(cors());
+
+app.post("/fulfil/:id", express.json({limit: "1mb"}), function(req, res) {
     for (var i = 0; i < requestQueue.length; i++) {
         if (requestQueue[i].originStatusId == req.params.id) {
             requestQueue[i].fulfil(req.body);
 
-            res.status(200);
+            res.status(200).end();
 
             return;
         }
     }
 
-    res.status(404);
+    res.status(404).end();
 });
 
 app.listen("3000", function() {
@@ -94,5 +108,5 @@ app.listen("3000", function() {
 
     stream.on("tweet", tweetRequestEvent);
 
-    new Request(`10 print "Hello, world!"\n20 goto 10`);
+    requestQueue.push(new Request(`10 print "Hello, world!"\n20 goto 10`, "test123"));
 });
