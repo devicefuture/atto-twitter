@@ -5,7 +5,8 @@ const Twit = require("twit");
 
 require("dotenv").config();
 
-const URL_BASE = process.env.ATTO_INSTANCE_URL;
+const INSTANCE_URL_BASE = process.env.ATTO_INSTANCE_URL;
+const PUBLIC_URL_BASE = process.env.ATTO_PUBLIC_URL;
 const TWITTER_USERNAME = process.env.TWITTER_USERNAME;
 const TWITTER_MAX_ALT_TEXT_LENGTH = 420;
 
@@ -39,11 +40,11 @@ class Request {
     runCode() {
         this.running = true;
 
-        var url = `${URL_BASE}?code=${encodeURIComponent(this.code)}&bot=${this.originStatusId}`;
+        var urlSuffix = `?code=${encodeURIComponent(this.code)}&bot=${this.originStatusId}`;
 
-        open(url);
+        open(INSTANCE_URL_BASE + urlSuffix);
 
-        this.reply = `Run and edit live at: ${url}`;
+        this.reply = `Run and edit live at: ${PUBLIC_URL_BASE}${urlSuffix}`;
     }
 
     fulfil(requestData) {
