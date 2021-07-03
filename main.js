@@ -16,38 +16,50 @@ var T = new Twit({
     consumer_key: process.env.TWITTER_CONSUMER_KEY,
     consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
     access_token: process.env.TWITTER_ACCESS_TOKEN,
-    access_secret: process.env.TWITTER_TOKEN_SECRET,
+    access_token_secret: process.env.TWITTER_ACCESS_SECRET,
     timeout_ms: 60 * 1000,
     strictSSL: true
 });
 
-var stream = T.stream("user");
+var stream = T.stream("statuses/filter", {track: ["@" + TWITTER_USERNAME]});
 
 var requestQueue = [];
 
 class Request {
-    constructor(code, originStatusId) {
+    constructor(code, originUser, originStatusId) {
         this.code = code;
+        this.originUser = originUser;
         this.originStatusId = originStatusId;
 
         this.reply = "";
         this.running = false;
         this.fulfilled = false;
 
-        this.runCode();
+        if (/^\d{1,6}/.exec(this.code)) {
+            this.runCode();
+        } else {
+            // Ignore non-code Tweets
+            this.fulfilled = true;
+        }
     }
 
     runCode() {
+        console.log("Started running code");
+
         this.running = true;
 
         var urlSuffix = `?code=${encodeURIComponent(this.code)}&bot=${this.originStatusId}`;
 
         open(INSTANCE_URL_BASE + urlSuffix);
 
-        this.reply = `Run and edit live at: ${PUBLIC_URL_BASE}${urlSuffix}`;
+        this.reply = `@${this.originUser} Run and edit live at: ${PUBLIC_URL_BASE}${urlSuffix}`;
     }
 
     fulfil(requestData) {
+        var thisScope = this;
+
+        console.log("Beginning fulfilment");
+
         T.post("media/upload", {media_data: requestData.content}, function(error, uploadData, response) {
             if (error) {
                 console.error(error);
@@ -66,10 +78,12 @@ class Request {
                 }
 
                 T.post("statuses/update", {
-                    status: this.reply,
-                    in_reply_to_status_id: this.originStatusId,
+                    status: thisScope.reply,
+                    in_reply_to_status_id: thisScope.originStatusId,
                     media_ids: uploadData.media_id_string
                 });
+
+                console.log("Posted Tweet");
             });
         });
 
@@ -79,18 +93,28 @@ class Request {
 }
 
 function tweetRequestEvent(tweet) {
+    console.log(`Found Tweet from @${tweet.user.screen_name}`);
+
     if (!(tweet.in_reply_to_screen_name == TWITTER_USERNAME || tweet.text.includes("@" + TWITTER_USERNAME + " "))) {
+        console.log("Rejected since it's not directed at us");
+
         return;
     }
 
+    console.log("Accepted since it's directed at us");
+
     requestQueue = requestQueue.filter((i) => !i.fulfilled);
 
-    requestQueue.push(new Request(tweet.text.replace("@" + TWITTER_USERNAME + " ", ""), tweet.id_str));
+    requestQueue.push(new Request(tweet.text.replace("@" + TWITTER_USERNAME + " ", "").trim(), tweet.user.screen_name, tweet.id_str));
+
+    console.log(`Request queue is now length ${requestQueue.length}`);
 }
 
 app.use(cors());
 
 app.post("/fulfil/:id", express.json({limit: "1mb"}), function(req, res) {
+    console.log(`Received fulfilment request from ${req.params.id}`);
+
     for (var i = 0; i < requestQueue.length; i++) {
         if (requestQueue[i].originStatusId == req.params.id) {
             requestQueue[i].fulfil(req.body);
@@ -108,6 +132,4 @@ app.listen("3000", function() {
     console.log("Listening at localhost:3000");
 
     stream.on("tweet", tweetRequestEvent);
-
-    requestQueue.push(new Request(`10 print "Hello, world!"\n20 goto 10`, "test123"));
 });
