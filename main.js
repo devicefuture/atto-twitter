@@ -21,7 +21,7 @@ var T = new Twit({
     strictSSL: true
 });
 
-var stream = T.stream("statuses/filter", {track: ["@" + TWITTER_USERNAME]});
+var stream = T.stream("statuses/filter", {track: ["@" + TWITTER_USERNAME], tweet_mode: "extended"});
 
 var requestQueue = [];
 
@@ -36,9 +36,12 @@ class Request {
         this.fulfilled = false;
 
         if (/^\d{1,6}/.exec(this.code)) {
+            console.log("Accepted code");
             this.runCode();
         } else {
             // Ignore non-code Tweets
+            console.log("Rejected code");
+
             this.fulfilled = true;
         }
     }
@@ -105,7 +108,7 @@ function tweetRequestEvent(tweet) {
 
     requestQueue = requestQueue.filter((i) => !i.fulfilled);
 
-    requestQueue.push(new Request(tweet.text.replace("@" + TWITTER_USERNAME + " ", "").trim(), tweet.user.screen_name, tweet.id_str));
+    requestQueue.push(new Request((tweet.extended_tweet?.full_text || tweet.text).replace("@" + TWITTER_USERNAME + " ", "").trim(), tweet.user.screen_name, tweet.id_str));
 
     console.log(`Request queue is now length ${requestQueue.length}`);
 }
@@ -132,4 +135,32 @@ app.listen("3000", function() {
     console.log("Listening at localhost:3000");
 
     stream.on("tweet", tweetRequestEvent);
+
+    stream.on("connect", function() {
+        console.log("Attempting to connect to stream...");
+    });
+
+    stream.on("connected", function() {
+        console.log("Connected to stream");
+    });
+
+    stream.on("disconnect", function() {
+        console.log("Disconnected from stream");
+    });
+
+    stream.on("reconnect", function() {
+        console.log("Reconnecting to stream...");
+    });
+
+    stream.on("error", function(error) {
+        console.error(error);
+    });
+
+    stream.on("warning", function(warning) {
+        console.warning(warning);
+    });
+
+    stream.on("limitation", function(error) {
+        console.error(error);
+    });
 });
