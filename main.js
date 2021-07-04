@@ -27,7 +27,7 @@ var requestQueue = [];
 
 class Request {
     constructor(code, originUser, originStatusId) {
-        this.code = code;
+        this.code = this.constructor.sanitiseCode(code);
         this.originUser = originUser;
         this.originStatusId = originStatusId;
 
@@ -44,6 +44,13 @@ class Request {
 
             this.fulfilled = true;
         }
+    }
+
+    static sanitiseCode(code) {
+        return (code
+            .replace(/[“”]/g, "\"")
+            .replace(/[‘’]/g, "'")
+        );
     }
 
     runCode() {
