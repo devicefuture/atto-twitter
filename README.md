@@ -1,4 +1,4 @@
-# atto Twitter Bot
+# `atto` Twitter Bot
 This is [atto](https://github.com/James-Livesey/atto)'s Twitter bot that executes programs that are Tweeted to it.
 
 If your atto code can fit in a single Tweet, then feel free to send it to our [Twitter bot](https://twitter.com/codeurdreams) who'll then execute your code and reply to your Tweet with a screenshot of it running! Simply follow these steps:
