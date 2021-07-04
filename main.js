@@ -58,9 +58,9 @@ class Request {
 
         this.running = true;
 
-        var urlSuffix = `?code=${encodeURIComponent(this.code)}&bot=${this.originStatusId}`;
+        var urlSuffix = `?code=${encodeURIComponent(this.code)}`;
 
-        open(INSTANCE_URL_BASE + urlSuffix);
+        open(INSTANCE_URL_BASE + urlSuffix + `&bot=${this.originStatusId}`);
 
         this.reply = `@${this.originUser} Run and edit live at: ${PUBLIC_URL_BASE}${urlSuffix}`;
     }
