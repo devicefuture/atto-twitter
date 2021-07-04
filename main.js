@@ -50,7 +50,7 @@ class Request {
         return (code
             .replace(/[“”]/g, "\"")
             .replace(/[‘’]/g, "'")
-        );
+        ).trim();
     }
 
     runCode() {
