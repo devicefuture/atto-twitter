@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const open = require("open");
+const base2048 = require("base2048");
 const Twit = require("twit");
 
 require("dotenv").config();
@@ -27,7 +28,7 @@ var requestQueue = [];
 
 class Request {
     constructor(code, originUser, originStatusId) {
-        this.code = this.constructor.sanitiseCode(code);
+        this.code = code.startsWith("🗜️") ? code : this.constructor.sanitiseCode(code);
         this.originUser = originUser;
         this.originStatusId = originStatusId;
 
@@ -35,9 +36,9 @@ class Request {
         this.running = false;
         this.fulfilled = false;
 
-        if (/^\d{1,6}/.exec(this.code)) {
+        if (/^\d{1,6}/.exec(this.code) || this.code.startsWith("🗜️")) {
             console.log("Accepted code");
-            this.runCode();
+            this.runCode(this.code.startsWith("🗜️"));
         } else {
             // Ignore non-code Tweets
             console.log("Rejected code");
@@ -53,7 +54,21 @@ class Request {
         ).trim();
     }
 
-    runCode() {
+    runCode(inBase2048 = false) {
+        if (inBase2048) {
+            try {
+                this.code = new TextDecoder().decode(base2048.decode(this.code.replace(/^🗜️\s*/, "").trim()));
+            } catch (e) {
+                console.log("Couldn't decode base2048");
+
+                this.reply = `@${this.originUser} Sorry, however the base2048 code you provided is invalid. Try using the Tweet button at jamesl.me/atto`;
+
+                this.tweetError();
+
+                return;
+            }
+        }
+
         console.log("Started running code");
 
         this.running = true;
@@ -63,6 +78,18 @@ class Request {
         open(INSTANCE_URL_BASE + urlSuffix + `&bot=${this.originStatusId}`);
 
         this.reply = `@${this.originUser} Run and edit live at: ${PUBLIC_URL_BASE}${urlSuffix}`;
+    }
+
+    tweetError() {
+        T.post("statuses/update", {
+            status: this.reply,
+            in_reply_to_status_id: this.originStatusId
+        });
+
+        console.log("Posted error Tweet");
+
+        this.running = false;
+        this.fulfilled = true;
     }
 
     fulfil(requestData) {
