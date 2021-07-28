@@ -9,7 +9,7 @@ If your atto code can fit in a single Tweet, then feel free to send it to our [T
 4. Type `help`, then press **Tweet**, and review your code
 5. Press the **Tweet** button and post your code to Twitter
 
-Your code will be run for a total of 5 seconds before a screenshot is taken. Our bot will then reply ASAP!
+Your code will be run for a total of 10 seconds before a screenshot is taken. Our bot will then reply ASAP!
 
 ## Demo Tweets
 Here are just a few of the fun demos that can be Tweeted with our bot. Click on each image to go to the Twitter thread and see for yourself!
