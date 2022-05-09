@@ -1,9 +1,9 @@
 # `atto` Twitter Bot
-This is [atto](https://github.com/James-Livesey/atto)'s Twitter bot that executes programs that are Tweeted to it.
+This is [atto](https://github.com/devicefuture/atto)'s Twitter bot that executes programs that are Tweeted to it.
 
 If your atto code can fit in a single Tweet, then feel free to send it to our [Twitter bot](https://twitter.com/codeurdreams) who'll then execute your code and reply to your Tweet with a screenshot of it running! Simply follow these steps:
 
-1. Go to [jamesl.me/atto](https://jamesl.me/atto)
+1. Go to [atto.devicefuture.org](https://atto.devicefuture.org)
 2. Write some atto code — type `help` to learn how
 3. Run it to see if it works with `run`
 4. Type `help`, then press **Tweet**, and review your code
