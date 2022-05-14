@@ -142,7 +142,7 @@ function tweetRequestEvent(tweet) {
 
     requestQueue = requestQueue.filter((i) => !i.fulfilled);
 
-    requestQueue.push(new Request((tweet.extended_tweet?.full_text || tweet.text).split("@" + TWITTER_USERNAME + " ")[1].trim(), tweet.user.screen_name, tweet.id_str));
+    requestQueue.push(new Request((tweet.extended_tweet?.full_text || tweet.text).split("@" + TWITTER_USERNAME + " ")[1]?.trim() || "", tweet.user.screen_name, tweet.id_str));
 
     console.log(`Request queue is now length ${requestQueue.length}`);
 }
